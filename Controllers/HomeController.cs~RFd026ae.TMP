@@ -1,0 +1,108 @@
+﻿using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using WebApiWpossVideojuegos.Dto;
+using WebApiWpossVideojuegos.Models;
+
+namespace WebApiWpossVideojuegos.Controllers
+{
+    [Route("api/[controller]/[action]")]
+    [ApiController]
+    public class HomeController : Controller
+    {
+        VideojuegoPWPossVs2Context context = new VideojuegoPWPossVs2Context();
+
+        //----------------************* CRUD de Clientes *******------------------
+
+        //listar Todos los campos del cliente que existen
+        [HttpGet]
+        public IEnumerable<Cliente> GetClientes()
+        {
+
+            return context.Clientes.ToList();
+
+        }
+
+        //   listar un cliente a travez de un id
+        [HttpGet("{idCliente}")]
+        public Cliente GetListarclienteId(int idCliente)
+        {
+            var rescliente = context.Clientes.FirstOrDefault(x => x.IdCliente == idCliente);
+            return rescliente;
+
+        }
+
+        // agregar un nuevo cliente
+        [HttpPost]
+        public Response PostNuevoBodyCliente(BodyCliente bodycliente)
+        {
+            try
+            {
+                // CCCContext context = new CCCContext();
+                Cliente clien = new Cliente
+                {
+                    Nit = bodycliente.Nit,
+                    Nombre = bodycliente.Nombre,
+                    Apellidos = bodycliente.Apellidos,
+                    Direccion = bodycliente.Direccion,
+                    Correo = bodycliente.Correo,
+                    Edad = bodycliente.Edad,
+                    Telefono = bodycliente.Telefono,
+                    
+                   
+                };
+                context.Clientes.Add(clien);
+                context.SaveChanges();
+                return new Response { state = 200, message = "Se creo un nuevo cliente correctamente" };
+            }
+            catch (Exception ex)
+            {
+                throw new ApplicationException(Convert.ToString(ex));
+            }
+
+        }
+
+
+        // actualizar o modificar uno existente
+        [HttpPut("{idCliente}")]
+        public ActionResult PutCliente(int idCliente, Cliente cliente)
+        {
+
+
+            if (cliente.IdCliente == idCliente)
+            {
+                context.Entry(cliente).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+                context.SaveChanges();
+                return Ok();
+            }
+            else
+            {
+                return BadRequest();
+            }
+        }
+
+
+        //  eliminar
+        [HttpDelete("{idCliente}")]
+        public ActionResult DeleteCliente(int idCliente)
+        {
+            // var cliente = context.Clientes.Find(idCliente);
+            var cliente = context.Clientes.FirstOrDefault(x => x.IdCliente == idCliente);
+
+            if (cliente != null)
+            {
+                context.Clientes.Remove(cliente);
+                context.SaveChanges();
+                return Ok();
+            }
+            else
+            {
+                return BadRequest();
+            }
+
+        }
+
+    }
+}
